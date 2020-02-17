@@ -1,0 +1,26 @@
+{
+  "name": "pccomponentes/mongodb-transaction",
+  "description": "MongoDB Transaction",
+  "license": "MIT",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Zoilo Mora",
+      "email": "zoilo.mora@pccomponentes.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "PcComponentes\\Transaction\\": "src/"
+    }
+  },
+  "require": {
+    "php": "^7.4",
+    "ext-mongodb": "*",
+    "mongodb/mongodb": "^1.4",
+    "pccomponentes/transaction": "^1.0"
+  },
+  "require-dev": {
+    "pccomponentes/coding-standard": "^1.0"
+  }
+}
