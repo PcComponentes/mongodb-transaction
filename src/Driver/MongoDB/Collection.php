@@ -3,10 +3,8 @@ declare(strict_types=1);
 
 namespace PcComponentes\Transaction\Driver\MongoDB;
 
-use MongoDB\BSON\JavascriptInterface;
 use MongoDB\Driver\Manager;
 use MongoDB\Driver\Session;
-use MongoDB\Operation\Explainable;
 
 final class Collection extends \MongoDB\Collection
 {
@@ -31,29 +29,16 @@ final class Collection extends \MongoDB\Collection
 
     private function addSession(array $options): array
     {
-        $options['session'] = $this->session;
+        if (false === isset($options['session'])) {
+            $options['session'] = $this->session;
+        }
 
         return $options;
-    }
-
-    public function aggregate(array $pipeline, array $options = [])
-    {
-        return parent::aggregate($pipeline, $this->addSession($options));
     }
 
     public function bulkWrite(array $operations, array $options = [])
     {
         return parent::bulkWrite($operations, $this->addSession($options));
-    }
-
-    public function count($filter = [], array $options = [])
-    {
-        return parent::count($filter, $this->addSession($options));
-    }
-
-    public function countDocuments($filter = [], array $options = [])
-    {
-        return parent::countDocuments($filter, $this->addSession($options));
     }
 
     public function createIndex($key, array $options = [])
@@ -76,11 +61,6 @@ final class Collection extends \MongoDB\Collection
         return parent::deleteOne($filter, $this->addSession($options));
     }
 
-    public function distinct($fieldName, $filter = [], array $options = [])
-    {
-        return parent::distinct($fieldName, $filter, $this->addSession($options));
-    }
-
     public function drop(array $options = [])
     {
         return parent::drop($this->addSession($options));
@@ -94,26 +74,6 @@ final class Collection extends \MongoDB\Collection
     public function dropIndexes(array $options = [])
     {
         return parent::dropIndexes($this->addSession($options));
-    }
-
-    public function estimatedDocumentCount(array $options = [])
-    {
-        return parent::estimatedDocumentCount($this->addSession($options));
-    }
-
-    public function explain(Explainable $explainable, array $options = [])
-    {
-        return parent::explain($explainable, $this->addSession($options));
-    }
-
-    public function find($filter = [], array $options = [])
-    {
-        return parent::find($filter, $this->addSession($options));
-    }
-
-    public function findOne($filter = [], array $options = [])
-    {
-        return parent::findOne($filter, $this->addSession($options));
     }
 
     public function findOneAndDelete($filter, array $options = [])
@@ -141,16 +101,6 @@ final class Collection extends \MongoDB\Collection
         return parent::insertOne($document, $this->addSession($options));
     }
 
-    public function listIndexes(array $options = [])
-    {
-        return parent::listIndexes($this->addSession($options));
-    }
-
-    public function mapReduce(JavascriptInterface $map, JavascriptInterface $reduce, $out, array $options = [])
-    {
-        return parent::mapReduce($map, $reduce, $out, $this->addSession($options));
-    }
-
     public function replaceOne($filter, $replacement, array $options = [])
     {
         return parent::replaceOne($filter, $replacement, $this->addSession($options));
@@ -164,15 +114,5 @@ final class Collection extends \MongoDB\Collection
     public function updateOne($filter, $update, array $options = [])
     {
         return parent::updateOne($filter, $update, $this->addSession($options));
-    }
-
-    public function watch(array $pipeline = [], array $options = [])
-    {
-        return parent::watch($pipeline, $this->addSession($options));
-    }
-
-    public function withOptions(array $options = [])
-    {
-        return parent::withOptions($this->addSession($options));
     }
 }

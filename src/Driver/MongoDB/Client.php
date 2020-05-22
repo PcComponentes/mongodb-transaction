@@ -3,21 +3,36 @@ declare(strict_types=1);
 
 namespace PcComponentes\Transaction\Driver\MongoDB;
 
-use MongoDB\Driver\ReadConcern;
+use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\Session;
-use MongoDB\Driver\WriteConcern;
 
 final class Client extends \MongoDB\Client
 {
     private Session $session;
 
-    public function __construct(string $uri, array $uriOptions = [], array $driverOptions = [])
-    {
+    public function __construct(
+        string $uri = 'mongodb://127.0.0.1/',
+        array $uriOptions = [],
+        array $driverOptions = [],
+        array $transactionOptions = []
+    ) {
         parent::__construct($uri, $uriOptions, $driverOptions);
 
         $this->session = $this->startSession(
-            $this->defaultTransactionOptions()
+            [
+                'defaultTransactionOptions' => \array_merge(
+                    $transactionOptions,
+                    $this->defaultTransactionOptions(),
+                ),
+            ]
         );
+    }
+
+    private function defaultTransactionOptions(): array
+    {
+        return [
+            'readPreference' => new ReadPreference(ReadPreference::RP_PRIMARY),
+        ];
     }
 
     public function selectDatabase($databaseName, array $options = []): Database
@@ -27,19 +42,9 @@ final class Client extends \MongoDB\Client
         return new Database($this->getManager(), $databaseName, $this->session, $options);
     }
 
-    private function defaultTransactionOptions(): array
+    public function beginTransaction($options = []): void
     {
-        return [
-            'readConcern' => new ReadConcern('local'),
-            'writeConcern' => new WriteConcern(WriteConcern::MAJORITY),
-        ];
-    }
-
-    public function beginTransaction(): void
-    {
-        $this->session->startTransaction(
-            $this->defaultTransactionOptions()
-        );
+        $this->session->startTransaction($options);
     }
 
     public function commit(): void
