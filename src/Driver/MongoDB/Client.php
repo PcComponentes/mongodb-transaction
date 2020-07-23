@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace PcComponentes\Transaction\Driver\MongoDB;
 
-use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\Session;
 
 final class Client extends \MongoDB\Client
@@ -13,26 +12,11 @@ final class Client extends \MongoDB\Client
     public function __construct(
         string $uri = 'mongodb://127.0.0.1/',
         array $uriOptions = [],
-        array $driverOptions = [],
-        array $transactionOptions = []
+        array $driverOptions = []
     ) {
         parent::__construct($uri, $uriOptions, $driverOptions);
 
-        $this->session = $this->startSession(
-            [
-                'defaultTransactionOptions' => \array_merge(
-                    $transactionOptions,
-                    $this->defaultTransactionOptions(),
-                ),
-            ]
-        );
-    }
-
-    private function defaultTransactionOptions(): array
-    {
-        return [
-            'readPreference' => new ReadPreference(ReadPreference::RP_PRIMARY),
-        ];
+        $this->session = $this->startSession();
     }
 
     public function selectDatabase($databaseName, array $options = []): Database

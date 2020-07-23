@@ -3,42 +3,45 @@ declare(strict_types=1);
 
 namespace PcComponentes\Transaction\Driver\MongoDB;
 
+use MongoDB\BSON\JavascriptInterface;
 use MongoDB\Driver\Manager;
 use MongoDB\Driver\Session;
+use MongoDB\Operation\Explainable;
 
 final class Collection extends \MongoDB\Collection
 {
     private Session $session;
 
-    public function __construct(
-        Manager $manager,
-        $databaseName,
-        $collectionName,
-        Session $session,
-        array $options = []
-    ) {
+    public function __construct(Manager $manager, $databaseName, $collectionName, Session $session, array $options = [])
+    {
         parent::__construct(
             $manager,
             $databaseName,
             $collectionName,
-            $options
+            $options,
         );
 
         $this->session = $session;
     }
 
-    private function addSession(array $options): array
+    public function aggregate(array $pipeline, array $options = [])
     {
-        if (false === isset($options['session'])) {
-            $options['session'] = $this->session;
-        }
-
-        return $options;
+        return parent::aggregate($pipeline, $this->addSession($options));
     }
 
     public function bulkWrite(array $operations, array $options = [])
     {
         return parent::bulkWrite($operations, $this->addSession($options));
+    }
+
+    public function count($filter = [], array $options = [])
+    {
+        return parent::count($filter, $this->addSession($options));
+    }
+
+    public function countDocuments($filter = [], array $options = [])
+    {
+        return parent::countDocuments($filter, $this->addSession($options));
     }
 
     public function createIndex($key, array $options = [])
@@ -61,9 +64,14 @@ final class Collection extends \MongoDB\Collection
         return parent::deleteOne($filter, $this->addSession($options));
     }
 
+    public function distinct($fieldName, $filter = [], array $options = [])
+    {
+        return parent::distinct($fieldName, $filter, $this->addSession($options));
+    }
+
     public function drop(array $options = [])
     {
-        return parent::drop($this->addSession($options));
+        return parent::drop($options);
     }
 
     public function dropIndex($indexName, array $options = [])
@@ -73,7 +81,27 @@ final class Collection extends \MongoDB\Collection
 
     public function dropIndexes(array $options = [])
     {
-        return parent::dropIndexes($this->addSession($options));
+        return parent::dropIndexes($options);
+    }
+
+    public function estimatedDocumentCount(array $options = [])
+    {
+        return parent::estimatedDocumentCount($options);
+    }
+
+    public function explain(Explainable $explainable, array $options = [])
+    {
+        return parent::explain($explainable, $this->addSession($options));
+    }
+
+    public function find($filter = [], array $options = [])
+    {
+        return parent::find($filter, $this->addSession($options));
+    }
+
+    public function findOne($filter = [], array $options = [])
+    {
+        return parent::findOne($filter, $this->addSession($options));
     }
 
     public function findOneAndDelete($filter, array $options = [])
@@ -91,6 +119,46 @@ final class Collection extends \MongoDB\Collection
         return parent::findOneAndUpdate($filter, $update, $this->addSession($options));
     }
 
+    public function getCollectionName()
+    {
+        return parent::getCollectionName();
+    }
+
+    public function getDatabaseName()
+    {
+        return parent::getDatabaseName();
+    }
+
+    public function getManager()
+    {
+        return parent::getManager();
+    }
+
+    public function getNamespace()
+    {
+        return parent::getNamespace();
+    }
+
+    public function getReadConcern()
+    {
+        return parent::getReadConcern();
+    }
+
+    public function getReadPreference()
+    {
+        return parent::getReadPreference();
+    }
+
+    public function getTypeMap()
+    {
+        return parent::getTypeMap();
+    }
+
+    public function getWriteConcern()
+    {
+        return parent::getWriteConcern();
+    }
+
     public function insertMany(array $documents, array $options = [])
     {
         return parent::insertMany($documents, $this->addSession($options));
@@ -99,6 +167,16 @@ final class Collection extends \MongoDB\Collection
     public function insertOne($document, array $options = [])
     {
         return parent::insertOne($document, $this->addSession($options));
+    }
+
+    public function listIndexes(array $options = [])
+    {
+        return parent::listIndexes($options);
+    }
+
+    public function mapReduce(JavascriptInterface $map, JavascriptInterface $reduce, $out, array $options = [])
+    {
+        return parent::mapReduce($map, $reduce, $out, $this->addSession($options));
     }
 
     public function replaceOne($filter, $replacement, array $options = [])
@@ -114,5 +192,24 @@ final class Collection extends \MongoDB\Collection
     public function updateOne($filter, $update, array $options = [])
     {
         return parent::updateOne($filter, $update, $this->addSession($options));
+    }
+
+    public function watch(array $pipeline = [], array $options = [])
+    {
+        return parent::watch($pipeline, $this->addSession($options));
+    }
+
+    public function withOptions(array $options = [])
+    {
+        return parent::withOptions($options);
+    }
+
+    private function addSession(array $options): array
+    {
+        if (false === isset($options['session'])) {
+            $options['session'] = $this->session;
+        }
+
+        return $options;
     }
 }
